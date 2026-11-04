@@ -1,0 +1,34 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Список категорий{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Справочник категорий</h1>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Название</th>
+                <th>Описание</th>
+                <th>Задач</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for category in categories %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ category.name }}</td>
+                    <td>{{ category.description|default('Нет описания') }}</td>
+                    <td>{{ category.tasks|length }}</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted">Записи не найдены</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

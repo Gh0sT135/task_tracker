@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Список проектов{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Список проектов</h1>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Название</th>
+                <th>Описание</th>
+                <th>Задач</th>
+                <th>Создан</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for project in projects %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ project.name }}</td>
+                    <td>{{ project.description|default('Нет описания') }}</td>
+                    <td>{{ project.tasks|length }}</td>
+                    <td>{{ project.createdAt|date('d.m.Y') }}</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted">Записи не найдены</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

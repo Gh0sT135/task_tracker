@@ -1,0 +1,63 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Добавление задачи{% endblock %}
+
+{% block body %}
+    <h1>Создать новую задачу</h1>
+
+    <div class="card mt-4">
+        <div class="card-body">
+            {{ form_start(form) }}
+                <div class="mb-3">
+                    {{ form_label(form.title) }}
+                    {{ form_widget(form.title) }}
+                    <div class="text-danger">{{ form_errors(form.title) }}</div>
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.description) }}
+                    {{ form_widget(form.description) }}
+                    <div class="text-danger">{{ form_errors(form.description) }}</div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        {{ form_label(form.project) }}
+                        {{ form_widget(form.project) }}
+                        <div class="text-danger">{{ form_errors(form.project) }}</div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        {{ form_label(form.category) }}
+                        {{ form_widget(form.category) }}
+                        <div class="text-danger">{{ form_errors(form.category) }}</div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        {{ form_label(form.status) }}
+                        {{ form_widget(form.status) }}
+                        <div class="text-danger">{{ form_errors(form.status) }}</div>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        {{ form_label(form.priority) }}
+                        {{ form_widget(form.priority) }}
+                        <div class="text-danger">{{ form_errors(form.priority) }}</div>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        {{ form_label(form.dueDate) }}
+                        {{ form_widget(form.dueDate) }}
+                        <div class="text-danger">{{ form_errors(form.dueDate) }}</div>
+                    </div>
+                </div>
+
+                {{ form_row(form.save) }}
+            {{ form_end(form) }}
+
+            <a href="{{ path('task_index') }}" class="btn btn-link mt-3">Вернуться к списку</a>
+        </div>
+    </div>
+{% endblock %}

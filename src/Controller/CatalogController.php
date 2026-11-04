@@ -10,6 +10,7 @@ use App\Repository\CategoryRepository;
 use App\Repository\ProjectRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 class CatalogController extends AbstractController
@@ -32,6 +33,26 @@ class CatalogController extends AbstractController
                 'name' => $project->getName(),
                 'description' => $project->getDescription(),
             ], $projects),
+        ]);
+    }
+
+    #[Route('/projects', name: 'project_index', methods: ['GET'])]
+    public function projectsPage(): Response
+    {
+        $projects = $this->projectRepository->findBy([], ['id' => 'ASC']);
+
+        return $this->render('project/index.html.twig', [
+            'projects' => $projects,
+        ]);
+    }
+
+    #[Route('/categories', name: 'category_index', methods: ['GET'])]
+    public function categoriesPage(): Response
+    {
+        $categories = $this->categoryRepository->findBy([], ['id' => 'ASC']);
+
+        return $this->render('category/index.html.twig', [
+            'categories' => $categories,
         ]);
     }
 
