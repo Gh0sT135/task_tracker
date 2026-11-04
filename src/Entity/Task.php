@@ -21,11 +21,20 @@ class Task
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank]
-    #[Assert\Length(max: 255)]
+    #[Assert\NotBlank(message: 'Название обязательно для заполнения.')]
+    #[Assert\Length(
+        min: 3,
+        max: 255,
+        minMessage: 'Название должно содержать минимум {{ limit }} символа.',
+        maxMessage: 'Название не должно превышать {{ limit }} символов.',
+    )]
     private string $title;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Assert\Length(
+        max: 2000,
+        maxMessage: 'Описание не должно превышать {{ limit }} символов.',
+    )]
     private ?string $description = null;
 
     #[ORM\Column(length: 20, enumType: TaskStatus::class)]
@@ -42,6 +51,7 @@ class Task
 
     #[ORM\ManyToOne(targetEntity: Project::class, inversedBy: 'tasks')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    #[Assert\NotNull(message: 'Проект обязателен для заполнения.')]
     private Project $project;
 
     #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'tasks')]

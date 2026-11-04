@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Редактирование задачи{% endblock %}
+
+{% block body %}
+    <h1>Редактирование записи: {{ task.title }}</h1>
+
+    <div class="card mt-4">
+        <div class="card-body">
+            {{ include('task/_form.html.twig') }}
+
+            <a href="{{ path('task_index') }}" class="btn btn-link mt-3">Отмена</a>
+        </div>
+    </div>
+{% endblock %}

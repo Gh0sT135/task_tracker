@@ -91,10 +91,99 @@ class TaskWebTest extends WebTestCase
         $client->submit($form);
 
         self::assertResponseStatusCodeSame(200);
-        self::assertSelectorTextContains('.text-danger', 'This value should not be blank.');
+        self::assertSelectorTextContains('.text-danger', 'Название обязательно для заполнения.');
 
         $this->entityManager->clear();
         self::assertNull($this->entityManager->getRepository(Task::class)->findOneBy(['title' => '']));
+    }
+
+    public function testNewRejectsTooShortTitle(): void
+    {
+        $client = self::getClient();
+        $crawler = $client->request('GET', '/tasks/new');
+
+        $form = $crawler->selectButton('Сохранить')->form([
+            'task[title]' => 'OK',
+            'task[project]' => '1',
+        ]);
+        $client->submit($form);
+
+        self::assertResponseStatusCodeSame(200);
+        self::assertSelectorTextContains('.text-danger', 'Название должно содержать минимум 3 символа.');
+
+        $this->entityManager->clear();
+        self::assertNull($this->entityManager->getRepository(Task::class)->findOneBy(['title' => 'OK']));
+    }
+
+    public function testEditRendersPrefilledForm(): void
+    {
+        $client = self::getClient();
+        $crawler = $client->request('GET', '/tasks/1/edit');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('h1', 'Редактирование записи');
+        self::assertSame(
+            'Спроектировать схему базы данных',
+            $crawler->filter('input[name="task[title]"]')->attr('value'),
+        );
+    }
+
+    public function testEditUpdatesTaskAndRedirectsWithFlash(): void
+    {
+        $client = self::getClient();
+        $crawler = $client->request('GET', '/tasks/1/edit');
+
+        $form = $crawler->selectButton('Сохранить')->form([
+            'task[title]' => 'Обновлённая задача',
+            'task[description]' => 'Описание после редактирования',
+            'task[project]' => '1',
+            'task[category]' => '1',
+            'task[status]' => 'Done',
+            'task[priority]' => 'Low',
+            'task[dueDate]' => '2026-12-20',
+        ]);
+        $client->submit($form);
+
+        self::assertResponseRedirects('/tasks');
+        $client->followRedirect();
+        self::assertSelectorTextContains('.alert-success', 'Запись успешно обновлена!');
+
+        $this->entityManager->clear();
+        $task = $this->entityManager->getRepository(Task::class)->find(1);
+
+        self::assertNotNull($task);
+        self::assertSame('Обновлённая задача', $task->getTitle());
+        self::assertSame('Done', $task->getStatus()->value);
+        self::assertSame('2026-12-20', $task->getDueDate()?->format('Y-m-d'));
+    }
+
+    public function testDeleteRemovesTaskWithValidCsrfToken(): void
+    {
+        $client = self::getClient();
+        $crawler = $client->request('GET', '/tasks');
+
+        $token = $crawler->filter('form[action="/tasks/1"] input[name="_token"]')->attr('value');
+        $client->request('POST', '/tasks/1', ['_token' => $token]);
+
+        self::assertResponseRedirects('/tasks');
+        $client->followRedirect();
+        self::assertSelectorTextContains('.alert-success', 'Запись удалена.');
+
+        $this->entityManager->clear();
+        self::assertNull($this->entityManager->getRepository(Task::class)->find(1));
+    }
+
+    public function testDeleteKeepsTaskWithInvalidCsrfToken(): void
+    {
+        $client = self::getClient();
+        $client->request('POST', '/tasks/1', ['_token' => 'invalid-token']);
+
+        self::assertResponseRedirects('/tasks');
+        $client->followRedirect();
+        self::assertSelectorTextContains('.alert-danger', 'Неверный CSRF-токен.');
+
+        $this->entityManager->clear();
+        self::assertNotNull($this->entityManager->getRepository(Task::class)->find(1));
     }
 
     public function testCatalogPagesAreRendered(): void
